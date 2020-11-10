@@ -12,7 +12,7 @@
 using namespace std;
 
 // tipos
-typedef enum { CUBO, PIRAMIDE, ROMBO, OBJETO_PLY, ROTACION } _tipo_objeto;
+typedef enum { CUBO, PIRAMIDE, ROMBO, OBJETO_PLY, CILINDRO, CONO } _tipo_objeto;
 _tipo_objeto tipo_objeto=CUBO;
 _modo   modo=PUNTOS;
 
@@ -33,7 +33,8 @@ _piramide piramide(0.85,1.3);
 _cubo cubo(0.5);
 _rombo rombo(0.5, 0.5);
 _objeto_ply  ply; 
-_rotacion rotacion; 
+_cilindro cilindro;
+_cono cono;
 
 float r = 0, g = 0.5, b = 0.25;
 float r2 = 1, g2 = 0.75, b2 = 0.5;
@@ -129,9 +130,11 @@ switch (tipo_objeto) {
     case OBJETO_PLY: 
 		ply.draw(modo,1.0,0.6,0.0,0.0,1.0,0.3,2);
 		break;
-    case ROTACION:
-		rotacion.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
+    case CILINDRO:
+		cilindro.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
 		break;
+	case CONO:
+		cono.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
 	}
 
 }
@@ -215,7 +218,10 @@ void normal_key(unsigned char Tecla1,int x,int y)
 			tipo_objeto=OBJETO_PLY;
 			break;	
 		case '5':
-			tipo_objeto=ROTACION;
+			tipo_objeto=CILINDRO;
+			break;
+		case '6':
+			tipo_objeto=CONO;
 			break;
 	}
 	
@@ -291,20 +297,6 @@ glViewport(0,0,Window_width,Window_high);
 
 int main(int argc, char *argv[] )
 {
-
-// perfil 
-
-vector<_vertex3f> perfil2;
-_vertex3f aux;
-
-aux.x=1.0; aux.y=-1.0; aux.z=0.0;
-perfil2.push_back(aux);
-aux.x=1.0; aux.y=1.0; aux.z=0.0;
-perfil2.push_back(aux);
-
-
-rotacion.parametros(perfil2,6);
-
 
 
 // se llama a la inicialización de glut

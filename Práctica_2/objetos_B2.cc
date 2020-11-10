@@ -398,3 +398,28 @@ if (fabs(perfil[0].x)>0.0)
   _genera_colores();
 }
 
+//************************************************************************
+// objeto por revolucion: Cilindro
+//************************************************************************
+
+_cilindro::_cilindro(){
+	_vertex3f aux;
+	aux.x=1.0; aux.y=0.0; aux.z=0.0;
+	perfil.push_back(aux);
+	aux.x=1.0; aux.y=1.0; aux.z=0.0;
+	perfil.push_back(aux);
+	parametros(perfil, 20);
+}
+
+//************************************************************************
+// objeto por revolucion: Cono
+//************************************************************************
+
+_cono::_cono(){
+	_vertex3f aux;
+	aux.x=0.0; aux.y=1.0; aux.z=0.0;
+	perfil.push_back(aux);
+	aux.x=1.0; aux.y=0.0; aux.z=0.0;
+	perfil.push_back(aux);
+	parametros(perfil, 20);
+}

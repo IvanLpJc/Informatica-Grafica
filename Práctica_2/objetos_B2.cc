@@ -303,12 +303,65 @@ return(0);
 
 _rotacion::_rotacion()
 {
-
+	
 }
 
+void _rotacion::regenerar_con_nuevas_opciones(_tapas n_tapas, _eje_de_rotacion n_eje_de_rotacion){
+	tapas = n_tapas;
+	eje_de_rotacion = n_eje_de_rotacion;
+	parametros(perfil, 20);
+}
 
-void _rotacion::parametros(vector<_vertex3f> perfil, int num)
-{
+void _rotacion::giro_en_eje_y(const int num, int num_aux){
+	_vertex3f vertice_aux;
+	_vertex3i cara_aux;
+
+	for (int j=0;j<num;j++)
+		{for (int i=0;i<num_aux;i++)
+		{		
+			vertice_aux.x=perfil[i].x*cos(2.0*M_PI*j/(1.0*num))+
+							perfil[i].z*sin(2.0*M_PI*j/(1.0*num));
+				vertice_aux.z=-perfil[i].x*sin(2.0*M_PI*j/(1.0*num))+
+								perfil[i].z*cos(2.0*M_PI*j/(1.0*num));
+				vertice_aux.y=perfil[i].y;
+				vertices[i+j*num_aux]=vertice_aux;
+			}
+		}
+	
+}
+
+void _rotacion::giro_en_eje_x(const int num, int num_aux){
+	_vertex3f vertice_aux;
+	_vertex3i cara_aux;
+
+	for (int j=0;j<num;j++)
+		{for (int i=0;i<num_aux;i++)
+			{
+			vertice_aux.x=perfil[i].x;
+			vertice_aux.y=perfil[i].y * cos(2.0*M_PI*j/(1.0*num)) - perfil[i].z*sin(2.0*M_PI*j/(1.0*num));
+			vertice_aux.z=-perfil[i].y*sin(2.0*M_PI*j/(1.0*num)) + perfil[i].z*cos(2.0*M_PI*j/(1.0*num));
+			vertices[i+j*num_aux]=vertice_aux;
+			}
+		}
+}
+
+void _rotacion::giro_en_eje_z(const int num, int num_aux){
+	_vertex3f vertice_aux;
+	_vertex3i cara_aux;
+
+	for (int j=0;j<num;j++)
+		{for (int i=0;i<num_aux;i++)
+			{
+			vertice_aux.x=-perfil[i].y*sin(2.0*M_PI*j/(1.0*num)) + perfil[i].z*cos(2.0*M_PI*j/(1.0*num));
+			vertice_aux.y=perfil[i].y * cos(2.0*M_PI*j/(1.0*num)) - perfil[i].z*sin(2.0*M_PI*j/(1.0*num));
+			vertice_aux.z=perfil[i].z;
+			vertices[i+j*num_aux]=vertice_aux;
+			}
+		}
+}
+
+void _rotacion::parametros(vector<_vertex3f> perfil, int num){
+
 int i,j;
 _vertex3f vertice_aux;
 _vertex3i cara_aux;
@@ -318,17 +371,8 @@ int num_aux;
 
 num_aux=perfil.size();
 vertices.resize(num_aux*num+2);
-for (j=0;j<num;j++)
-  {for (i=0;i<num_aux;i++)
-     {
-      vertice_aux.x=perfil[i].x*cos(2.0*M_PI*j/(1.0*num))+
-                    perfil[i].z*sin(2.0*M_PI*j/(1.0*num));
-      vertice_aux.z=-perfil[i].x*sin(2.0*M_PI*j/(1.0*num))+
-                    perfil[i].z*cos(2.0*M_PI*j/(1.0*num));
-      vertice_aux.y=perfil[i].y;
-      vertices[i+j*num_aux]=vertice_aux;
-     }
-  }
+
+giro_en_eje_y(num, num_aux);
 
 // tratamiento de las caras 
 caras.resize((num_aux-1)*2*num+2*num);
@@ -402,24 +446,39 @@ if (fabs(perfil[0].x)>0.0)
 // objeto por revolucion: Cilindro
 //************************************************************************
 
-_cilindro::_cilindro(){
+_cilindro::_cilindro(_tapas tapas, _eje_de_rotacion eje){
 	_vertex3f aux;
-	aux.x=1.0; aux.y=0.0; aux.z=0.0;
+	aux.x=1.0; aux.y=-1.0; aux.z=0.0;
 	perfil.push_back(aux);
 	aux.x=1.0; aux.y=1.0; aux.z=0.0;
 	perfil.push_back(aux);
-	parametros(perfil, 20);
+	regenerar_con_nuevas_opciones(tapas, eje_de_rotacion);
 }
 
 //************************************************************************
 // objeto por revolucion: Cono
 //************************************************************************
 
-_cono::_cono(){
+_cono::_cono(_tapas tapas, _eje_de_rotacion eje){
 	_vertex3f aux;
 	aux.x=0.0; aux.y=1.0; aux.z=0.0;
 	perfil.push_back(aux);
 	aux.x=1.0; aux.y=0.0; aux.z=0.0;
 	perfil.push_back(aux);
-	parametros(perfil, 20);
+	regenerar_con_nuevas_opciones(tapas, eje_de_rotacion);
+}
+
+_esfera::_esfera(){
+	
+}
+
+//************************************************************************
+// objeto por revolucion: Esfera
+//************************************************************************
+
+void _esfera::genera_perfil(){
+	_vertex3f aux;
+	aux.x=0.0; aux.y=1.0; aux.z=0.0;
+	perfil.push_back(aux);
+	regenerar_con_nuevas_opciones(tapas, eje_de_rotacion);
 }

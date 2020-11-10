@@ -12,6 +12,8 @@
 
 const float AXIS_SIZE=5000;
 typedef enum{ PUNTOS, ARISTAS, AJEDREZ, SOLIDO, MULTICOLOR } _modo;
+typedef enum{ EJE_X, EJE_Y, EJE_Z } _eje_de_rotacion;
+typedef enum{ TAPA_SUPERIOR, TAPA_INFERIOR, AMBAS_TAPAS } _tapas;
 
 //*************************************************************************
 // clase punto
@@ -103,9 +105,16 @@ class _rotacion: public _triangulos3D
 {
 public:
        _rotacion();
-void  parametros(vector<_vertex3f> perfil1, int num1);
+void regenerar_con_nuevas_opciones(_tapas tapas, _eje_de_rotacion eje_de_rotacion);
+void  parametros(vector<_vertex3f> perfil1, int num);
+void giro_en_eje_y(int num, int num_aux);
+void giro_en_eje_x(int num, int num_aux);
+void giro_en_eje_z(int num, int num_aux);
 
 vector<_vertex3f> perfil; 
+_tapas tapas;
+_eje_de_rotacion eje_de_rotacion;
+
 int num;
 };
 
@@ -116,7 +125,7 @@ int num;
 class _cilindro: public _rotacion
 {
 	public:
-		_cilindro();
+		_cilindro(_tapas tapas, _eje_de_rotacion eje);
 };
 
 //************************************************************************
@@ -126,6 +135,16 @@ class _cilindro: public _rotacion
 class _cono: public _rotacion
 {
 	public:
-		_cono();
+		_cono(_tapas tapas, _eje_de_rotacion eje);
 };
 
+//************************************************************************
+// objeto por revolución : Cono
+//************************************************************************
+
+class _esfera: public _rotacion
+{
+	public:
+		_esfera();
+		void genera_perfil();
+};

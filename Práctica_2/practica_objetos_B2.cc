@@ -12,8 +12,10 @@
 using namespace std;
 
 // tipos
-typedef enum { CUBO, PIRAMIDE, ROMBO, OBJETO_PLY, CILINDRO, CONO } _tipo_objeto;
+typedef enum { CUBO, PIRAMIDE, ROMBO, OBJETO_PLY, CILINDRO, CONO, ESFERA } _tipo_objeto;
 _tipo_objeto tipo_objeto=CUBO;
+_eje_de_rotacion eje_de_rotacion=EJE_Y;
+_tapas tapas=AMBAS_TAPAS;
 _modo   modo=PUNTOS;
 
 // variables que definen la posicion de la camara en coordenadas polares
@@ -33,8 +35,9 @@ _piramide piramide(0.85,1.3);
 _cubo cubo(0.5);
 _rombo rombo(0.5, 0.5);
 _objeto_ply  ply; 
-_cilindro cilindro;
-_cono cono;
+_cilindro cilindro(AMBAS_TAPAS, EJE_Y);
+_cono cono(AMBAS_TAPAS, EJE_Y);
+_esfera esfera;
 
 float r = 0, g = 0.5, b = 0.25;
 float r2 = 1, g2 = 0.75, b2 = 0.5;
@@ -135,6 +138,8 @@ switch (tipo_objeto) {
 		break;
 	case CONO:
 		cono.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
+	case ESFERA:
+		esfera.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
 	}
 
 }
@@ -175,6 +180,13 @@ glViewport(0,0,Ancho1,Alto1);
 glutPostRedisplay();
 }
 
+static bool han_cambiado_opciones(_tapas prev_tapas, _eje_de_rotacion prev_eje){
+	if(tapas != prev_tapas || eje_de_rotacion != prev_eje){
+		return true;
+	}
+
+	return false;
+}
 
 //**********-o*****************************************************************
 // Funcion llamada cuando se aprieta una tecla normal
@@ -187,6 +199,9 @@ glutPostRedisplay();
 
 void normal_key(unsigned char Tecla1,int x,int y)
 {
+	_tapas prev_tapas = tapas ;
+	_eje_de_rotacion _prev_eje = eje_de_rotacion;
+
 	switch (toupper(Tecla1)) {
 		case 'Q':
 			exit(0);
@@ -223,6 +238,32 @@ void normal_key(unsigned char Tecla1,int x,int y)
 		case '6':
 			tipo_objeto=CONO;
 			break;
+		case '7':
+			tipo_objeto=ESFERA;
+			break;
+		case 'T':
+			tapas=AMBAS_TAPAS;
+			break;
+		case 'R':
+			tapas=TAPA_SUPERIOR;
+			break;
+		case 'E':
+			tapas=TAPA_INFERIOR;
+			break;
+		case 'X':
+			eje_de_rotacion=EJE_X;
+			break;
+		case 'Y':
+			eje_de_rotacion=EJE_Y;
+			break;
+		case 'Z':
+			eje_de_rotacion=EJE_Z;
+			break;
+	}
+	
+	if( han_cambiado_opciones(prev_tapas, _prev_eje)){
+		cilindro.regenerar_con_nuevas_opciones(tapas, eje_de_rotacion);
+		cono.regenerar_con_nuevas_opciones(tapas, eje_de_rotacion);
 	}
 	
 	glutPostRedisplay();

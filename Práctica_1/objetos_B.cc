@@ -38,9 +38,19 @@ glEnd();
 
 _triangulos3D::_triangulos3D()
 {
+
 }
 
 
+void _triangulos3D::_genera_colores(){
+
+	colores.resize(caras.size());
+	for (int i = 0 ; i < caras.size(); i++) {
+		colores[i].r = drand48() * 1.0;
+		colores[i].g = drand48() * 1.0;
+		colores[i].b = drand48() * 1.0;
+	}
+}
 //*************************************************************************
 // dibujar en modo arista
 //*************************************************************************
@@ -66,19 +76,16 @@ glEnd();
 // dibujar en modo sólido
 //*************************************************************************
 
-void _triangulos3D::draw_solido(float r, float g, float b)
-{
-	int i ;
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL) ;
-	glColor3f(r,g,b) ;
-	glBegin(GL_POLYGON) ;
-	for(i = 0 ; i < caras.size() ; i++){
+void _triangulos3D::draw_solido(float r, float g, float b) {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glColor3f(r,g,b);
+	glBegin(GL_TRIANGLES);
+	for( int i=0 ; i < caras.size() ; i++){
 		glVertex3fv((GLfloat *) &vertices[caras[i]._0]);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._1]);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._2]);
 	}
-	glEnd() ;
+	glEnd();
 
 }
 
@@ -86,76 +93,35 @@ void _triangulos3D::draw_solido(float r, float g, float b)
 // dibujar en modo sólido con apariencia de ajedrez
 //*************************************************************************
 
-void _triangulos3D::draw_solido_ajedrez(float r1, float g1, float b1, float r2, float g2, float b2)
-{
-	int i ;
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL) ;
-	
-	glBegin(GL_TRIANGLES) ;
-	for(i = 0 ; i < caras.size(); i++){
-
-		if(i%2 != 0) glColor3f(r1,g1,b1) ;		
-		else glColor3f(r2,g2,b2) ;
-
-
+void _triangulos3D::draw_solido_ajedrez(float r1, float g1, float b1, float r2, float g2, float b2) {
+	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+	glBegin(GL_TRIANGLES);
+	for (int i=0;i<caras.size();i++){
+		if (i%2==0) glColor3f(r2,g2,b2);
+		else glColor3f(r1,g1,b1);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._0]);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._1]);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._2]);
-	}
+		}
 	glEnd();
 }
 
 
-void _triangulos3D::asignar_colores_caras(){
-	colores_caras.resize(caras.size()) ;
-	for(int i = 0 ; i < caras.size() ; i++){
-		colores_caras[i].r=(rand()%255) ;
-		colores_caras[i].g=(rand()%255) ;
-		colores_caras[i].b=(rand()%255) ;
-	}
-}
+//*************************************************************************
+// dibujar en modo sólido multicolor
+//*************************************************************************
 
-void _puntos3D::asignar_colores_vertices(){
-
-	colores_vertices.resize(vertices.size()) ;
-	for(int i = 0 ; i < vertices.size() ; i++){
-		colores_vertices[i].r=rand()%255 ;
-		colores_vertices[i].g=rand()%255 ;
-		colores_vertices[i].b=rand()%255 ;
-	}
-}
-
-
-void _triangulos3D::draw_solido_colores_caras(){
-	int i ;
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL) ;
-	glBegin(GL_POLYGON) ;
-	for(i = 0 ; i < caras.size() ; i++){
-		glColor3f(colores_caras[i].r,colores_caras[i].g, colores_caras[i].b) ;
+void _triangulos3D::draw_solido_multicolor() {
+	float r, g, b;
+	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+	glBegin(GL_TRIANGLES);
+	for (int i=0;i<caras.size();i++){
+		glColor3f(colores[i].r, colores[i].g, colores[i].b);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._0]);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._1]);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._2]);
-	}
-	glEnd() ;
-}
-
-void _triangulos3D::draw_solido_colores_vertices(){
-	int i ;
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL) ;
-	glShadeModel(GL_SMOOTH) ; //Así tienen efecto los colores en los vertices
-	glBegin(GL_POLYGON) ;
-	for(i = 0 ; i < caras.size() ; i++){
-		glColor3f(colores_vertices[caras[i]._0].r,colores_vertices[caras[i]._0].g,colores_vertices[caras[i]._0].b) ;
-		glVertex3fv((GLfloat *) &vertices[caras[i]._0]);
-		glColor3f(colores_vertices[caras[i]._1].r,colores_vertices[caras[i]._1].g,colores_vertices[caras[i]._1].b) ;
-		glVertex3fv((GLfloat *) &vertices[caras[i]._1]);
-		glColor3f(colores_vertices[caras[i]._2].r,colores_vertices[caras[i]._2].g,colores_vertices[caras[i]._2].b) ;
-		glVertex3fv((GLfloat *) &vertices[caras[i]._2]);
-	}
-	glEnd() ;
-	glShadeModel(GL_FLAT) ;
+		}
+	glEnd();
 }
 
 
@@ -166,55 +132,38 @@ void _triangulos3D::draw_solido_colores_vertices(){
 _cubo::_cubo(float tam)
 {
 //vertices
-//    v6----- v5
-//   /|      /|
-//  v1------v0|
-//  | |     | |
-//  | |v7---|-|v4
-//  |/      |/
-//  v2------v3
+vertices.resize(8);
+vertices[0].x=-tam;vertices[0].y=0;vertices[0].z=tam;
+vertices[1].x=tam;vertices[1].y=0;vertices[1].z=tam;
+vertices[2].x=tam;vertices[2].y=0;vertices[2].z=-tam;
+vertices[3].x=-tam;vertices[3].y=0;vertices[3].z=-tam;
 
-	//vertices 
-vertices.resize(8); 
-vertices[0].x=tam; vertices[0].y=tam; vertices[0].z=tam;
-vertices[1].x=-tam; vertices[1].y=tam; vertices[1].z=tam;
-vertices[2].x=-tam; vertices[2].y=-tam;vertices[2].z=tam;
-vertices[3].x=tam; vertices[3].y=-tam;vertices[3].z=tam;
+vertices[4].x=-tam;vertices[4].y=tam*2;vertices[4].z=tam;
+vertices[5].x=tam;vertices[5].y=tam*2;vertices[5].z=tam;
+vertices[6].x=tam;vertices[6].y=tam*2;vertices[6].z=-tam;
+vertices[7].x=-tam;vertices[7].y=tam*2;vertices[7].z=-tam;
 
-vertices[4].x=tam;vertices[4].y=-tam;vertices[4].z=-tam;
-vertices[5].x=tam;vertices[5].y=tam;vertices[5].z=-tam;
-vertices[6].x=-tam;vertices[6].y=tam;vertices[6].z=-tam;
-vertices[7].x=-tam;vertices[7].y=-tam;vertices[7].z=-tam;
-
-
-	//triangulos
-
+// triangulos
 caras.resize(12);
-//Frontal
-caras[0]._0=1;	caras[0]._1=2;	caras[0]._2=3;
-caras[1]._0=3;	caras[1]._1=0;	caras[1]._2=1;
+caras[0]._0=0;caras[0]._1=3;caras[0]._2=1;
+caras[1]._0=3;caras[1]._1=2;caras[1]._2=1;
 
-// Lateral Derecho
-caras[2]._0=0;	caras[2]._1=3;	caras[2]._2=4;
-caras[3]._0=0;	caras[3]._1=4;	caras[3]._2=5;
-// Trasera
-caras[4]._0=5;	caras[4]._1=4;	caras[4]._2=7;
-caras[5]._0=7;	caras[5]._1=6;	caras[5]._2=5;
+caras[2]._0=0;caras[2]._1=1;caras[2]._2=4;
+caras[3]._0=1;caras[3]._1=5;caras[3]._2=4;
 
-// Lateral Izquierdo
-caras[6]._0=6;	caras[6]._1=7;	caras[6]._2=2;
-caras[7]._0=1;	caras[7]._1=6;	caras[7]._2=2;
+caras[4]._0=1;caras[4]._1=2;caras[4]._2=5;
+caras[5]._0=2;caras[5]._1=6;caras[5]._2=5;
 
-// Arriba
-caras[8]._0=0;	caras[8]._1=6;	caras[8]._2=1;
-caras[9]._0=0;	caras[9]._1=5;	caras[9]._2=6;
+caras[6]._0=2;caras[6]._1=3;caras[6]._2=6;
+caras[7]._0=3;caras[7]._1=7;caras[7]._2=6;
 
-// Abajo
-caras[10]._0=3;	caras[10]._1=2;	caras[10]._2=7;
-caras[11]._0=3;	caras[11]._1=7;	caras[11]._2=4;
+caras[8]._0=3;caras[8]._1=0;caras[8]._2=7;
+caras[9]._0=0;caras[9]._1=4;caras[9]._2=7;
 
-asignar_colores_vertices() ;
-asignar_colores_caras() ;
+caras[10]._0=4;caras[10]._1=5;caras[10]._2=7;
+caras[11]._0=5;caras[11]._1=6;caras[11]._2=7;
+
+_genera_colores() ;
 
 }
 
@@ -241,36 +190,44 @@ caras[2]._0=2;caras[2]._1=3;caras[2]._2=4;
 caras[3]._0=3;caras[3]._1=0;caras[3]._2=4;
 caras[4]._0=3;caras[4]._1=1;caras[4]._2=0;
 caras[5]._0=3;caras[5]._1=2;caras[5]._2=1;
-asignar_colores_vertices() ;
-asignar_colores_caras() ;
+
+
+_genera_colores() ;
 }
 
 //*************************************************************************
-// clase octaedro
+// clase rombo
 //*************************************************************************
 
-_octaedro::_octaedro(float tam, float al){
+_rombo::_rombo(float tam, float al){
 
-//vertices 
-vertices.resize(6); 
-vertices[0].x=-tam;vertices[0].y=0;vertices[0].z=tam;
-vertices[1].x=tam;vertices[1].y=0;vertices[1].z=tam;
-vertices[2].x=tam;vertices[2].y=0;vertices[2].z=-tam;
-vertices[3].x=-tam;vertices[3].y=0;vertices[3].z=-tam;
+	//vertices
+	//puntos finales
+	vertices.resize(6);
+	vertices[0].x=0;vertices[0].y=0;vertices[0].z=0;
+	vertices[1].x=0;vertices[1].y=al*2;vertices[1].z=0;
+	//centro
+	vertices[2].x=-tam;vertices[2].y=al;vertices[2].z=tam;
+	vertices[3].x=tam;vertices[3].y=al;vertices[3].z=tam;
+	vertices[4].x=tam;vertices[4].y=al;vertices[4].z=-tam;
+	vertices[5].x=-tam;vertices[5].y=al;vertices[5].z=-tam;
 
-vertices[4].x=0;vertices[4].y=al;vertices[4].z=0;
-vertices[5].x=0;vertices[5].y=-al; vertices[5].z=0 ;
 
-caras.resize(8);
-caras[0]._0=0;caras[0]._1=1;caras[0]._2=4;
-caras[1]._0=1;caras[1]._1=2;caras[1]._2=4;
-caras[2]._0=2;caras[2]._1=3;caras[2]._2=4;
-caras[3]._0=3;caras[3]._1=0;caras[3]._2=4;
+	///caras
 
-caras[5]._0=1;caras[5]._1=0;caras[5]._2=5;
-caras[4]._0=2;caras[4]._1=1;caras[4]._2=5;
-caras[7]._0=3;caras[7]._1=2;caras[7]._2=5;
-caras[6]._0=0;caras[6]._1=3;caras[6]._2=5;
-asignar_colores_vertices() ;
-asignar_colores_caras() ;
+	caras.resize(8);
+	caras[0]._0=2;caras[0]._1=3;caras[0]._2=1; //frontal superior
+	caras[1]._0=0;caras[1]._1=3;caras[1]._2=2; //frontal inferior
+	
+	
+	caras[2]._0=3;caras[2]._1=4;caras[2]._2=1; //derecha superior
+	caras[3]._0=0;caras[3]._1=3;caras[3]._2=4; //derecha inferior
+
+	caras[4]._0=5;caras[4]._1=1;caras[4]._2=4; //trasera superior
+	caras[5]._0=0;caras[5]._1=5;caras[5]._2=4; //trasera inferior
+	
+	caras[6]._0=2;caras[6]._1=1;caras[6]._2=5; //izquierda superior
+	caras[7]._0=0;caras[7]._1=2;caras[7]._2=5; //izquierda inferior
+
+	_genera_colores() ;
 }

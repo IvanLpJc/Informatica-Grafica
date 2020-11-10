@@ -26,27 +26,17 @@ GLfloat Window_width,Window_height,Front_plane,Back_plane;
 // variables que determninan la posicion y tamaño de la ventana X
 int UI_window_pos_x=50,UI_window_pos_y=50,UI_window_width=450,UI_window_height=450;
 
-
+enum { PUNTOS, LINEAS, SOLIDO, AJEDREZ, MULTICOLOR, PIRAMIDE, CUBO, ROMBO };
+int objetoSeleccionado = PIRAMIDE;
+int modo = PUNTOS ;
 _piramide piramide(0.85,1.3);
-_cubo cubo(0.8);
-_octaedro octaedro(0.85,1.3) ;
+_cubo cubo(0.5);
+_rombo rombo(0.5, 0.5);
 
-const int PIRAMIDE = 0 ;
-const int CUBO = 1 ;
-const int OCTAEDRO = 2 ;
+float r = 0, g = 0.5, b = 0.25;
+float r2 = 1, g2 = 0.75, b2 = 0.5;
+int grosor = 4 ;
 
-
-
-const char ARISTAS = 'L' ;
-const char SOLIDO = 'F' ;
-const char AJEDREZ = 'C' ;
-const char PUNTOS = 'P' ;
-
-const char CVERTICES = 'V' ;
-const char CCARAS = 'B' ;
-
-int objeto = 0 ;
-int mode = 'L' ;
 //**************************************************************************
 //
 //***************************************************************************
@@ -117,77 +107,43 @@ glEnd();
 
 void draw_objects()
 {
-
-    
-    switch(mode){
-         case PUNTOS:
-            if(objeto == PIRAMIDE){
-                piramide.draw_puntos(1.0,0.5,0.0,3);
-            }else if(objeto == CUBO){
-                cubo.draw_puntos(1.0,0.5,0.0,3) ;
-            }else if (objeto == OCTAEDRO){
-            	octaedro.draw_puntos(1.0,0.5,0.0,3) ;
-            }
-            glutPostRedisplay() ;
-            break ;
-
-         case ARISTAS:
-            if(objeto == PIRAMIDE){
-                piramide.draw_aristas(1.0,0.5,0.0,3);
-            }else if(objeto == CUBO){
-                cubo.draw_aristas(1.0,0.5,0.0,3) ;
-            }else if(objeto == OCTAEDRO){
-            	octaedro.draw_aristas(1.0,0.5,0.0,3) ;
-            }
-            glutPostRedisplay() ;
-            break ;
-
-        case SOLIDO:
-            if(objeto == PIRAMIDE){
-                piramide.draw_solido(1.0,0.5,0.0);
-            }else if(objeto == CUBO){
-                cubo.draw_solido(1.0,0.5,0.0) ;
-            }else if(objeto == OCTAEDRO){
-            	octaedro.draw_solido(1.0,0.5,0.0) ;
-            }
-            glutPostRedisplay() ;
-            break ;
-
-        case AJEDREZ:
-            if(objeto == PIRAMIDE){
-                piramide.draw_solido_ajedrez(1.0,0.5,0.0,0.5,0.0,0.4);
-            }else if(objeto == CUBO){
-                cubo.draw_solido_ajedrez(1.0,0.5,0.0,0.5,0.0,0.4) ;
-            }else if(objeto == OCTAEDRO){
-            	octaedro.draw_solido_ajedrez(1.0,0.5,0.0,0.5,0.0,0.4) ;
-            }
-            glutPostRedisplay() ;
-            break ;
-        case CVERTICES:
-        	if(objeto==PIRAMIDE){
-        		piramide.draw_solido_colores_vertices() ;
-        	}else if (objeto == CUBO) 
-        	{
-        		cubo.draw_solido_colores_vertices() ;
-        	}else if(objeto == OCTAEDRO){
-        		octaedro.draw_solido_colores_vertices() ;
-        	}
-        	glutPostRedisplay() ;
-        	break ;
-        case CCARAS:
-        	if(objeto==PIRAMIDE){
-        		piramide.draw_solido_colores_caras() ;
-        	}else if (objeto == CUBO) 
-        	{	cubo.draw_solido_colores_caras() ;
-        	}else if(objeto == OCTAEDRO){
-        		octaedro.draw_solido_colores_caras() ;
-        	}
-        	glutPostRedisplay() ;
-        	break ;	
-    }     
-
+    switch (objetoSeleccionado)
+    {
+    case PIRAMIDE:
+        switch (modo) {
+            case LINEAS: piramide.draw_aristas(r, g, b, grosor); break;
+            case PUNTOS: piramide.draw_puntos(r, g, b, grosor); break;
+            case SOLIDO: piramide.draw_solido(r, g, b); break;
+            case AJEDREZ: piramide.draw_solido_ajedrez(r, g, b, r2, g2, b2); break;
+            case MULTICOLOR:
+                piramide.draw_solido_multicolor(); 
+                break;
+        }
+        break;
+    case CUBO:
+        switch (modo) {
+            case LINEAS: cubo.draw_aristas(r, g, b, grosor); break;
+            case PUNTOS: cubo.draw_puntos(r, g, b, grosor); break;
+            case SOLIDO: cubo.draw_solido(r, g, b); break;
+            case AJEDREZ: cubo.draw_solido_ajedrez(r, g, b, r2, g2, b2); break;
+            case MULTICOLOR: 
+                cubo.draw_solido_multicolor(); 
+                break;
+        }
+        break;
+    case ROMBO:
+        switch (modo) {
+            case LINEAS: rombo.draw_aristas(r, g, b, grosor); break;
+            case PUNTOS: rombo.draw_puntos(r, g, b, grosor); break;
+            case SOLIDO: rombo.draw_solido(r, g, b); break;
+            case AJEDREZ: rombo.draw_solido_ajedrez(r, g, b, r2, g2, b2); break;
+            case MULTICOLOR: 
+                rombo.draw_solido_multicolor(); 
+                break;
+        }
+        break;
+    }
 }
-
 
 
 //**************************************************************************
@@ -233,30 +189,17 @@ glutPostRedisplay();
 
 void normal_keys(unsigned char Tecla1,int x,int y)
 {
-
-if(toupper(Tecla1) == '1') {
-    objeto = PIRAMIDE ;
-    glutPostRedisplay() ;
-}
-else if(toupper(Tecla1) == '2'){
-    objeto = CUBO ;
-    glutPostRedisplay() ;
-}else if(toupper(Tecla1) == '3'){
-	objeto = OCTAEDRO ;
-	glutPostRedisplay();
-}
-
-switch(toupper(Tecla1)){
-    case ARISTAS: mode = ARISTAS ; glutPostRedisplay() ; break ;
-    case SOLIDO: mode = SOLIDO ; glutPostRedisplay() ; break ;
-    case AJEDREZ: mode = AJEDREZ ; glutPostRedisplay() ; break ;
-    case PUNTOS: mode = PUNTOS ; glutPostRedisplay() ; break ;
-    case CVERTICES: mode = CVERTICES; glutPostRedisplay(); break ;
-    case CCARAS: mode = CCARAS; glutPostRedisplay() ; break ;
-}
-
-
-if (toupper(Tecla1)=='Q') exit(0);
+    switch (toupper(Tecla1)) {
+        case 'Q': exit(0); break;
+		case 'P': modo = PUNTOS; draw_scene(); break;
+        case 'L': modo = LINEAS; draw_scene(); break;
+        case 'F': modo = SOLIDO; draw_scene(); break;
+        case 'C': modo = AJEDREZ; draw_scene(); break;
+        case 'M': modo = MULTICOLOR; draw_scene(); break;
+        case '1': objetoSeleccionado = PIRAMIDE; draw_scene(); break;
+        case '2': objetoSeleccionado = CUBO; draw_scene(); break;
+        case '3': objetoSeleccionado = ROMBO; draw_scene(); break;	
+    }   
 }
 
 //***************************************************************************

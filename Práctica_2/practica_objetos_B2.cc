@@ -15,7 +15,7 @@ using namespace std;
 typedef enum { CUBO, PIRAMIDE, ROMBO, OBJETO_PLY, CILINDRO, CONO, ESFERA } _tipo_objeto;
 _tipo_objeto tipo_objeto=CUBO;
 _eje_de_rotacion eje_de_rotacion=EJE_Y;
-_tapas tapas=AMBAS_TAPAS;
+_tapas tapa_sup=TAPA_CERRADA, tapa_inf=TAPA_CERRADA;
 _modo   modo=PUNTOS;
 
 // variables que definen la posicion de la camara en coordenadas polares
@@ -35,9 +35,9 @@ _piramide piramide(0.85,1.3);
 _cubo cubo(0.5);
 _rombo rombo(0.5, 0.5);
 _objeto_ply  ply; 
-_cilindro cilindro(AMBAS_TAPAS, EJE_Y);
-_cono cono(AMBAS_TAPAS, EJE_Y);
-_esfera esfera;
+_cilindro cilindro(tapa_sup, tapa_inf, EJE_Y);
+_cono cono(tapa_sup, tapa_inf, EJE_Y);
+_esfera esfera(tapa_sup, tapa_inf, EJE_Y);
 
 float r = 0, g = 0.5, b = 0.25;
 float r2 = 1, g2 = 0.75, b2 = 0.5;
@@ -180,8 +180,8 @@ glViewport(0,0,Ancho1,Alto1);
 glutPostRedisplay();
 }
 
-static bool han_cambiado_opciones(_tapas prev_tapas, _eje_de_rotacion prev_eje){
-	if(tapas != prev_tapas || eje_de_rotacion != prev_eje){
+static bool han_cambiado_opciones(_tapas prev_tapas_inf, _tapas prev_tapas_sup, _eje_de_rotacion prev_eje){
+	if(prev_tapas_inf != tapa_inf || prev_tapas_sup != tapa_sup || eje_de_rotacion != prev_eje){
 		return true;
 	}
 
@@ -199,7 +199,8 @@ static bool han_cambiado_opciones(_tapas prev_tapas, _eje_de_rotacion prev_eje){
 
 void normal_key(unsigned char Tecla1,int x,int y)
 {
-	_tapas prev_tapas = tapas ;
+	_tapas prev_tapa_inf = tapa_inf ;
+	_tapas prev_tapa_sup = tapa_sup ;
 	_eje_de_rotacion _prev_eje = eje_de_rotacion;
 
 	switch (toupper(Tecla1)) {
@@ -242,13 +243,16 @@ void normal_key(unsigned char Tecla1,int x,int y)
 			tipo_objeto=ESFERA;
 			break;
 		case 'T':
-			tapas=AMBAS_TAPAS;
+			tapa_sup=TAPA_ABIERTA;
 			break;
 		case 'R':
-			tapas=TAPA_SUPERIOR;
+			tapa_sup=TAPA_CERRADA;
 			break;
 		case 'E':
-			tapas=TAPA_INFERIOR;
+			tapa_inf=TAPA_CERRADA;
+			break;
+		case 'W':
+			tapa_inf=TAPA_ABIERTA;
 			break;
 		case 'X':
 			eje_de_rotacion=EJE_X;
@@ -261,9 +265,9 @@ void normal_key(unsigned char Tecla1,int x,int y)
 			break;
 	}
 	
-	if( han_cambiado_opciones(prev_tapas, _prev_eje)){
-		cilindro.regenerar_con_nuevas_opciones(tapas, eje_de_rotacion);
-		cono.regenerar_con_nuevas_opciones(tapas, eje_de_rotacion);
+	if( han_cambiado_opciones(prev_tapa_inf, prev_tapa_sup, _prev_eje)){
+		cilindro.regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje_de_rotacion);
+		cono.regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje_de_rotacion);
 	}
 	
 	glutPostRedisplay();

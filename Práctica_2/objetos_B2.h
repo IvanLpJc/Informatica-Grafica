@@ -13,7 +13,7 @@
 const float AXIS_SIZE=5000;
 typedef enum{ PUNTOS, ARISTAS, AJEDREZ, SOLIDO, MULTICOLOR } _modo;
 typedef enum{ EJE_X, EJE_Y, EJE_Z } _eje_de_rotacion;
-typedef enum{ TAPA_SUPERIOR, TAPA_INFERIOR, AMBAS_TAPAS } _tapas;
+typedef enum{ TAPA_ABIERTA, TAPA_CERRADA } _tapas;
 
 //*************************************************************************
 // clase punto
@@ -105,14 +105,17 @@ class _rotacion: public _triangulos3D
 {
 public:
        _rotacion();
-void regenerar_con_nuevas_opciones(_tapas tapas, _eje_de_rotacion eje_de_rotacion);
-void  parametros(vector<_vertex3f> perfil1, int num);
-void giro_en_eje_y(int num, int num_aux);
-void giro_en_eje_x(int num, int num_aux);
-void giro_en_eje_z(int num, int num_aux);
+void regenerar_con_nuevas_opciones(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje_de_rotacion);
+void parametros(vector<_vertex3f> perfil, int num);
+void giro_en_eje_y(vector<_vertex3f> &perfil, int num, int num_aux);
+void giro_en_eje_x(vector<_vertex3f> &perfil, int num, int num_aux);
+void giro_en_eje_z(vector<_vertex3f> &perfil, int num, int num_aux);
+void genera_tapas(int c, int num, int num_aux);
 
-vector<_vertex3f> perfil; 
-_tapas tapas;
+vector<_vertex3f> perfil_eje_y; 
+vector<_vertex3f> perfil_eje_x; 
+vector<_vertex3f> perfil_eje_z; 
+_tapas tapa_inf, tapa_sup;
 _eje_de_rotacion eje_de_rotacion;
 
 int num;
@@ -125,7 +128,7 @@ int num;
 class _cilindro: public _rotacion
 {
 	public:
-		_cilindro(_tapas tapas, _eje_de_rotacion eje);
+		_cilindro(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje);
 };
 
 //************************************************************************
@@ -135,7 +138,7 @@ class _cilindro: public _rotacion
 class _cono: public _rotacion
 {
 	public:
-		_cono(_tapas tapas, _eje_de_rotacion eje);
+		_cono(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje);
 };
 
 //************************************************************************
@@ -145,6 +148,8 @@ class _cono: public _rotacion
 class _esfera: public _rotacion
 {
 	public:
-		_esfera();
+		_esfera(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje);
 		void genera_perfil();
+
+	vector<_vertex3f> perfil_semiesfera; 
 };

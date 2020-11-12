@@ -19,11 +19,10 @@ _puntos3D::_puntos3D()
 
 void _puntos3D::draw_puntos(float r, float g, float b, int grosor)
 {
-int i;
 glPointSize(grosor);
 glColor3f(r,g,b);
 glBegin(GL_POINTS);
-for (i=0;i<vertices.size();i++){
+for (unsigned int i=0;i<vertices.size();i++){
 	glVertex3fv((GLfloat *) &vertices[i]);
 	}
 glEnd();
@@ -42,7 +41,7 @@ _triangulos3D::_triangulos3D()
 void _triangulos3D::_genera_colores(){
 
 	colores.resize(caras.size());
-	for (int i = 0 ; i < caras.size(); i++) {
+	for (unsigned int i = 0 ; i < caras.size(); i++) {
 		colores[i].r = drand48() * 1.0;
 		colores[i].g = drand48() * 1.0;
 		colores[i].b = drand48() * 1.0;
@@ -55,12 +54,11 @@ void _triangulos3D::_genera_colores(){
 
 void _triangulos3D::draw_aristas(float r, float g, float b, int grosor)
 {
-int i;
 glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 glLineWidth(grosor);
 glColor3f(r,g,b);
 glBegin(GL_TRIANGLES);
-for (i=0;i<caras.size();i++){
+for (unsigned int i=0;i<caras.size();i++){
 	glVertex3fv((GLfloat *) &vertices[caras[i]._0]);
 	glVertex3fv((GLfloat *) &vertices[caras[i]._1]);
 	glVertex3fv((GLfloat *) &vertices[caras[i]._2]);
@@ -77,7 +75,7 @@ void _triangulos3D::draw_solido(float r, float g, float b)
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glColor3f(r,g,b);
 	glBegin(GL_TRIANGLES);
-	for( int i=0 ; i < caras.size() ; i++){
+	for(unsigned int i=0 ; i < caras.size() ; i++){
 		glVertex3fv((GLfloat *) &vertices[caras[i]._0]);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._1]);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._2]);
@@ -93,7 +91,7 @@ void _triangulos3D::draw_solido_ajedrez(float r1, float g1, float b1, float r2, 
 {
 	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 	glBegin(GL_TRIANGLES);
-	for (int i=0;i<caras.size();i++){
+	for (unsigned int i=0;i<caras.size();i++){
 		if (i%2==0) glColor3f(r2,g2,b2);
 		else glColor3f(r1,g1,b1);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._0]);
@@ -110,7 +108,7 @@ void _triangulos3D::draw_solido_ajedrez(float r1, float g1, float b1, float r2, 
 void _triangulos3D::draw_multicolor() {
 	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 	glBegin(GL_TRIANGLES);
-	for (int i=0;i<caras.size();i++){
+	for (unsigned int i=0;i<caras.size();i++){
 		glColor3f(colores[i].r, colores[i].g, colores[i].b);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._0]);
 		glVertex3fv((GLfloat *) &vertices[caras[i]._1]);
@@ -275,7 +273,7 @@ vertices.resize(n_ver);
 caras.resize(n_car);
 
 int j = 0;
-for (int i = 0; i < ver_ply.size();)
+for (unsigned int i = 0; i < ver_ply.size();)
 {
 	vertices[j].x = ver_ply[i++];
 	vertices[j].y = ver_ply[i++];
@@ -285,7 +283,7 @@ for (int i = 0; i < ver_ply.size();)
 
 j = 0;
 
-for (int i = 0; i < car_ply.size();)
+for (unsigned int i = 0; i < car_ply.size();)
 {
 	caras[j]._0 = car_ply[i++];
 	caras[j]._1 = car_ply[i++];
@@ -297,19 +295,191 @@ _genera_colores();
 
 return(0);
 }
+
+ vector<_vertex3f> _objeto_ply::parametros_para_perfiles(char *archivo){
+	int n_ver,n_car;
+
+	vector<float> ver_ply ;
+	vector<int>   car_ply ;
+	vector<_vertex3f> perfil;
+	
+	_file_ply::read_vertex(archivo, ver_ply, car_ply );
+
+	n_ver=ver_ply.size()/3;
+	n_car=car_ply.size()/3;
+
+	printf("Number of vertices=%d\nNumber of faces=%d\n", n_ver, n_car);
+	perfil.resize(n_ver);
+
+	int j = 0;
+	for (unsigned int i = 0; i < ver_ply.size();)
+	{
+		perfil[j].x = ver_ply[i++];
+		perfil[j].y = ver_ply[i++];
+		perfil[j].z = ver_ply[i++];
+		j++;
+	}
+
+	return perfil;
+}
 //************************************************************************
 // objeto por revolucion
 //************************************************************************
 
 _rotacion::_rotacion()
 {
-
+	
 }
 
+void _rotacion::regenerar_con_nuevas_opciones(_tapas n_tapa_inf, _tapas n_tapa_sup, _eje_de_rotacion n_eje_de_rotacion){
+	
+	tapa_inf = n_tapa_inf;
+	tapa_sup = n_tapa_sup;
+	eje_de_rotacion = n_eje_de_rotacion;
 
-void _rotacion::parametros(vector<_vertex3f> perfil, int num)
-{
-int i,j;
+
+	if (eje_de_rotacion == EJE_X){
+		parametros(perfil_eje_x, 20);
+	} else if(eje_de_rotacion == EJE_Y){
+		parametros(perfil_eje_y, 20);
+	} else if(eje_de_rotacion == EJE_Z){
+		parametros(perfil_eje_z, 20);
+	}
+	
+	
+}
+
+void _rotacion::giro_en_eje_y(vector<_vertex3f> &perfil, int num, int num_aux){
+	_vertex3f vertice_aux;
+	_vertex3i cara_aux;
+	
+
+	for (int j=0;j<num;j++)
+		{for (int i=0;i<num_aux;i++)
+		{		
+			vertice_aux.x=perfil[i].x*cos(2.0*M_PI*j/(1.0*num))+
+							perfil[i].z*sin(2.0*M_PI*j/(1.0*num));
+				vertice_aux.z=-perfil[i].x*sin(2.0*M_PI*j/(1.0*num))+
+								perfil[i].z*cos(2.0*M_PI*j/(1.0*num));
+				vertice_aux.y=perfil[i].y;
+				vertices[i+j*num_aux]=vertice_aux;
+			}
+		}
+}
+
+void _rotacion::giro_en_eje_x(vector<_vertex3f> &perfil, int num, int num_aux){
+	_vertex3f vertice_aux;
+	_vertex3i cara_aux;
+
+	for (int j=0;j<num;j++)
+		{for (int i=0;i<num_aux;i++)
+			{
+			vertice_aux.x=perfil[i].x;
+			vertice_aux.y=perfil[i].y * cos(2.0*M_PI*j/(1.0*num)) - perfil[i].z*sin(2.0*M_PI*j/(1.0*num));
+			vertice_aux.z=-perfil[i].y*sin(2.0*M_PI*j/(1.0*num)) + perfil[i].z*cos(2.0*M_PI*j/(1.0*num));
+			vertices[i+j*num_aux]=vertice_aux;
+			}
+		}	
+}
+
+void _rotacion::giro_en_eje_z(vector<_vertex3f> &perfil, int num, int num_aux){
+	_vertex3f vertice_aux;
+	_vertex3i cara_aux;
+
+	for (int j=0;j<num;j++)
+		{for (int i=0;i<num_aux;i++)
+			{
+			vertice_aux.x=perfil[i].x*cos(2.0*M_PI*j/(1.0*num)) - perfil[i].y*sin(2.0*M_PI*j/(1.0*num));
+			vertice_aux.y=perfil[i].x*sin(2.0*M_PI*j/(1.0*num)) + perfil[i].y*cos(2.0*M_PI*j/(1.0*num));
+			vertice_aux.z=perfil[i].z;
+			vertices[i+j*num_aux]=vertice_aux;
+			}
+		}
+}
+
+void _rotacion::genera_tapas(int c,int num, int num_aux){
+
+	float tapa_inferior, tapa_superior;
+	vector<_vertex3f> perfil ;
+
+	if(eje_de_rotacion == EJE_Y){
+		tapa_inferior = fabs(perfil_eje_y[0].x);
+		tapa_superior = fabs(perfil_eje_y[num_aux-1].x);
+		perfil = perfil_eje_y;
+	} else if(eje_de_rotacion == EJE_X){
+		tapa_inferior = fabs(perfil_eje_x[0].y);
+		tapa_superior = fabs(perfil_eje_x[num_aux-1].y);
+		perfil = perfil_eje_x;
+	} else if(eje_de_rotacion == EJE_Z){
+		tapa_inferior = fabs(perfil_eje_z[0].y);
+		tapa_superior = fabs(perfil_eje_z[num_aux-1].y);
+		perfil = perfil_eje_z;
+	}
+
+	// tapa inferior
+	if ((tapa_inferior>0.0) && tapa_inf == TAPA_CERRADA)
+	{
+		if(eje_de_rotacion == EJE_Y){
+			vertices[num_aux*num].x = 0.0 ;
+			vertices[num_aux*num].y = perfil[0].y ;
+			vertices[num_aux*num].z = 0.0 ;
+		} if(eje_de_rotacion == EJE_X){
+			vertices[num_aux*num].x = perfil[0].x ;
+			vertices[num_aux*num].y = 0.0 ;
+			vertices[num_aux*num].z = 0.0 ;
+		} else if(eje_de_rotacion == EJE_Z){
+			vertices[num_aux*num].x = 0.0 ;
+			vertices[num_aux*num].y = 0.0 ;
+			vertices[num_aux*num].z = perfil[0].z ;
+		}
+
+		
+		for(int j=0 ; j < num-1 ; j++){
+			caras[c]._0 = num_aux*num; 
+			caras[c]._1 = j*2 ;
+			caras[c]._2 = (j+1)*2;
+			c++;
+		}
+
+		caras[c]._0 = vertices.size()-2;
+		caras[c]._1 = (num-1) * num_aux ;
+		caras[c]._2 = 0;
+		c++;
+	}
+	
+	// tapa superior
+	if ((tapa_superior>0.0) && (tapa_sup == TAPA_CERRADA))
+	{
+		if(eje_de_rotacion == EJE_Y){
+			vertices[num_aux*num+1].x = 0.0 ;
+			vertices[num_aux*num+1].y = perfil[num_aux-1].y ;
+			vertices[num_aux*num+1].z = 0.0 ;
+		} else if(eje_de_rotacion == EJE_X){
+			vertices[num_aux*num+1].x = perfil[num_aux-1].x ;
+			vertices[num_aux*num+1].y = 0.0 ;
+			vertices[num_aux*num+1].z = 0.0 ;
+		} else if(eje_de_rotacion == EJE_Z){
+			vertices[num_aux*num+1].x = 0.0 ;
+			vertices[num_aux*num+1].y = 0.0 ;
+			vertices[num_aux*num+1].z = perfil[num_aux-1].z ;
+		}
+
+		for(int j=0 ; j < num-1 ; j++){
+			caras[c]._0 = num_aux*num+1; 
+			caras[c]._1 = j*2+1 ;
+			caras[c]._2 = (j+1)*2+1;
+			c++;
+		}
+
+		caras[c]._0 = vertices.size()-1;
+		caras[c]._1 = (num-1) * num_aux + (num_aux-1);
+		caras[c]._2 = num_aux - 1 ;
+		c++;
+	}
+}
+
+void _rotacion::parametros(vector<_vertex3f> perfil, int num){
+
 _vertex3f vertice_aux;
 _vertex3i cara_aux;
 int num_aux;
@@ -318,83 +488,134 @@ int num_aux;
 
 num_aux=perfil.size();
 vertices.resize(num_aux*num+2);
-for (j=0;j<num;j++)
-  {for (i=0;i<num_aux;i++)
-     {
-      vertice_aux.x=perfil[i].x*cos(2.0*M_PI*j/(1.0*num))+
-                    perfil[i].z*sin(2.0*M_PI*j/(1.0*num));
-      vertice_aux.z=-perfil[i].x*sin(2.0*M_PI*j/(1.0*num))+
-                    perfil[i].z*cos(2.0*M_PI*j/(1.0*num));
-      vertice_aux.y=perfil[i].y;
-      vertices[i+j*num_aux]=vertice_aux;
-     }
-  }
+if(eje_de_rotacion == EJE_X) giro_en_eje_x(perfil_eje_x, num, num_aux);
+else if(eje_de_rotacion == EJE_Y) giro_en_eje_y(perfil_eje_y, num, num_aux);
+else if(eje_de_rotacion == EJE_Z) giro_en_eje_z(perfil_eje_z, num, num_aux);
 
 // tratamiento de las caras 
 caras.resize((num_aux-1)*2*num+2*num);
 
 int c = 0 ;
-for(j = 0; j <num-1 ; j++){
-	caras[c]._0 = j*2 ;
-	caras[c]._1 = j*2 + 1 ;
-	caras[c]._2 = (j+1)*2+1 ;
-	c++;
-	caras[c]._0 = (j+1)*2+1 ;
-	caras[c]._1 = (j+1)*2 ;
-	caras[c]._2 = j*2 ;
-	c++;
-}
+for(int j=0; j<num; j++){ 
+      for(int i=0; i < num_aux-1; i++){
+        caras[c]._0= j*num_aux+i;
+        caras[c]._1= j*num_aux+i+1;
+        caras[c]._2= ((j+1)%num)*num_aux+i +1;
+        c++;
+       
+        caras[c]._0= ((j+1)%num)*num_aux+i +1;
+        caras[c]._1= ((j+1)%num)*num_aux+i;
+        caras[c]._2= j*num_aux+i;
+        c++;
 
-for(int i = 0; i<num_aux-1; i++){
-	caras[c]._0 = (num-1) * num_aux + i;
-	caras[c]._1 = i;
-	caras[c]._2 = (num-1) * num_aux + (i+1);
-	c++;
-	caras[c]._0 = i;
-	caras[c]._1 = i+1;
-	caras[c]._2 = (num-1) * num_aux + (i+1);
-    c++;
-}
-// tapa inferior
-if (fabs(perfil[0].x)>0.0)
-{
-	vertices[num_aux*num].x = 0.0 ;
-	vertices[num_aux*num].y = perfil[0].y ;
-	vertices[num_aux*num].z = 0.0 ;
+      }
+    }
 
-	for(j=0 ; j < num-1 ; j++){
-		caras[c]._0 = num_aux*num; 
-		caras[c]._1 = j*2 ;
-		caras[c]._2 = (j+1)*2;
-		c++;
-	}
-
-	caras[c]._0 = vertices.size()-2;
-	caras[c]._1 = (num-1) * num_aux ;
-	caras[c]._2 = 0;
-	c++;
-}
- 
- // tapa superior
- if (fabs(perfil[num_aux-1].x)>0.0)
-{
-	vertices[num_aux*num+1].x = 0.0 ;
-	vertices[num_aux*num+1].y = perfil[num_aux-1].y ;
-	vertices[num_aux*num+1].z = 0.0 ;
-
-	for(j=0 ; j < num-1 ; j++){
-		caras[c]._0 = num_aux*num+1; 
-		caras[c]._1 = j*2+1 ;
-		caras[c]._2 = (j+1)*2+1;
-		c++;
-	}
-
-	caras[c]._0 = vertices.size()-1;
-	caras[c]._1 = (num-1) * num_aux + (num_aux-1);
-	caras[c]._2 = num_aux - 1 ;
-	c++;
-}
+	genera_tapas(c, num, num_aux);
 
   _genera_colores();
 }
 
+//************************************************************************
+// objeto por revolucion: Cilindro
+//************************************************************************
+
+_cilindro::_cilindro(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
+	_vertex3f aux;
+
+	aux.x=1.0; aux.y=-1.0; aux.z=0.0;
+	perfil_eje_y.push_back(aux);
+	aux.x=1.0; aux.y=1.0; aux.z=0.0;
+	perfil_eje_y.push_back(aux);
+
+	aux.x=-1.0; aux.y=1.0; aux.z=0.0;
+	perfil_eje_x.push_back(aux);
+	aux.x=1.0; aux.y=1.0; aux.z=0.0;
+	perfil_eje_x.push_back(aux);
+
+	aux.x=0.0; aux.y=1.0; aux.z=1.0;
+	perfil_eje_z.push_back(aux);
+	aux.x=0.0; aux.y=1.0; aux.z=-1.0;
+	perfil_eje_z.push_back(aux);
+
+	regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje);
+}
+
+//************************************************************************
+// objeto por revolucion: Cono
+//************************************************************************
+
+_cono::_cono(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
+	_vertex3f aux;
+	aux.x=0.0; aux.y=1.0; aux.z=0.0;
+	perfil_eje_y.push_back(aux);
+	aux.x=1.0; aux.y=0.0; aux.z=0.0;
+	perfil_eje_y.push_back(aux);
+
+	aux.x=1.0; aux.y=0.0; aux.z=0.0;
+	perfil_eje_x.push_back(aux);
+	aux.x=0.0; aux.y=1.0; aux.z=0.0;
+	perfil_eje_x.push_back(aux);
+
+	aux.x=0.0; aux.y=0.0; aux.z=1.0;
+	perfil_eje_z.push_back(aux);
+	aux.x=0.0; aux.y=1.0; aux.z=0.0;
+	perfil_eje_z.push_back(aux);
+
+	regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje);
+}
+
+_esfera::_esfera(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
+	tapa_sup = tapa_sup;
+	tapa_inf = tapa_inf;
+	eje_de_rotacion = eje;
+}
+
+void _esfera::lee_perfil(char *archivo){
+	perfil_eje_y = _objeto_ply::parametros_para_perfiles(archivo);
+	int tamano = perfil_eje_y.size();
+	printf("El tamaño de perfil_eje_y es de: %d\n", tamano);
+	regenerar_con_nuevas_opciones(tapa_sup, tapa_inf, eje_de_rotacion);
+
+}
+
+void _esfera::genera_perfil(int pasos){
+	num = pasos ;
+	_vertex3f vertice_aux;
+	vertice_aux.x = 0.0;
+	vertice_aux.y = 1.0 ;
+	vertice_aux.z = 0.0;
+	pasos = pasos*2;
+
+	perfil_semiesfera.push_back(vertice_aux);
+
+	int pasos_aux=perfil_semiesfera.size();
+	perfil_eje_y.resize(pasos_aux*pasos+2);
+
+	for (int j=0;j<pasos;j++)
+	{	
+		for (int i=0;i<pasos_aux;i++)
+		{
+			vertice_aux.x=-perfil_semiesfera[i].x*cos(2.0*M_PI*j/(1.0*pasos)) + perfil_semiesfera[i].y*sin(2.0*M_PI*j/(1.0*pasos));
+			vertice_aux.y=perfil_semiesfera[i].x*sin(2.0*M_PI*j/(1.0*pasos)) + perfil_semiesfera[i].y*cos(2.0*M_PI*j/(1.0*pasos));
+			vertice_aux.z=perfil_semiesfera[i].z;
+			perfil_eje_y[i+j*pasos_aux]=vertice_aux;
+
+
+				printf("Iteracion i = %d | j = %d\n", i ,j);
+				printf("cos(2.0*M_PI*j/(1.0*pasos) = %f\n", cos(2.0*M_PI*j/(1.0*pasos))) ;
+				printf("sin(2.0*M_PI*j/(1.0*pasos) = %f\n", sin(2.0*M_PI*j/(1.0*pasos))) ;
+		}
+	}
+
+	printf("Tamaño de vértices = %d || %f\n", int(perfil_eje_y.size()), float(perfil_eje_y.size()/2));
+	int mitad = perfil_eje_y.size()/2;
+	for(int i = 0 ; i < mitad; i++){
+		perfil_eje_y.pop_back();
+	}
+	printf("Tamaño de vértices tras quitar la mitad = %d\n", int(vertices.size()));
+	regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, EJE_Y);
+}
+//************************************************************************
+// objeto por revolucion: Esfera
+//************************************************************************

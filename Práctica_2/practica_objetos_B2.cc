@@ -12,8 +12,10 @@
 using namespace std;
 
 // tipos
-typedef enum { CUBO, PIRAMIDE, ROMBO, OBJETO_PLY, ROTACION } _tipo_objeto;
+typedef enum { CUBO, PIRAMIDE, ROMBO, OBJETO_PLY, CILINDRO, CONO, ESFERA } _tipo_objeto;
 _tipo_objeto tipo_objeto=CUBO;
+_eje_de_rotacion eje_de_rotacion=EJE_Y;
+_tapas tapa_sup=TAPA_CERRADA, tapa_inf=TAPA_CERRADA;
 _modo   modo=PUNTOS;
 
 // variables que definen la posicion de la camara en coordenadas polares
@@ -33,11 +35,15 @@ _piramide piramide(0.85,1.3);
 _cubo cubo(0.5);
 _rombo rombo(0.5, 0.5);
 _objeto_ply  ply; 
-_rotacion rotacion; 
+_cilindro cilindro(tapa_sup, tapa_inf, EJE_Y);
+_cono cono(tapa_sup, tapa_inf, EJE_Y);
+_esfera esfera(tapa_sup, tapa_inf, EJE_Y);
 
 float r = 0, g = 0.5, b = 0.25;
 float r2 = 1, g2 = 0.75, b2 = 0.5;
 int grosor = 4 ;
+
+int pasos = 20 ;
 
 // _objeto_ply *ply1;
 
@@ -129,9 +135,13 @@ switch (tipo_objeto) {
     case OBJETO_PLY: 
 		ply.draw(modo,1.0,0.6,0.0,0.0,1.0,0.3,2);
 		break;
-    case ROTACION:
-		rotacion.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
+    case CILINDRO:
+		cilindro.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
 		break;
+	case CONO:
+		cono.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
+	case ESFERA:
+		esfera.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
 	}
 
 }
@@ -172,6 +182,13 @@ glViewport(0,0,Ancho1,Alto1);
 glutPostRedisplay();
 }
 
+static bool han_cambiado_opciones(_tapas prev_tapas_inf, _tapas prev_tapas_sup, _eje_de_rotacion prev_eje){
+	if(prev_tapas_inf != tapa_inf || prev_tapas_sup != tapa_sup || eje_de_rotacion != prev_eje){
+		return true;
+	}
+
+	return false;
+}
 
 //**********-o*****************************************************************
 // Funcion llamada cuando se aprieta una tecla normal
@@ -184,6 +201,10 @@ glutPostRedisplay();
 
 void normal_key(unsigned char Tecla1,int x,int y)
 {
+	_tapas prev_tapa_inf = tapa_inf ;
+	_tapas prev_tapa_sup = tapa_sup ;
+	_eje_de_rotacion _prev_eje = eje_de_rotacion;
+
 	switch (toupper(Tecla1)) {
 		case 'Q':
 			exit(0);
@@ -215,8 +236,40 @@ void normal_key(unsigned char Tecla1,int x,int y)
 			tipo_objeto=OBJETO_PLY;
 			break;	
 		case '5':
-			tipo_objeto=ROTACION;
+			tipo_objeto=CILINDRO;
 			break;
+		case '6':
+			tipo_objeto=CONO;
+			break;
+		case '7':
+			tipo_objeto=ESFERA;
+			break;
+		case 'T':
+			tapa_sup=TAPA_ABIERTA;
+			break;
+		case 'R':
+			tapa_sup=TAPA_CERRADA;
+			break;
+		case 'E':
+			tapa_inf=TAPA_CERRADA;
+			break;
+		case 'W':
+			tapa_inf=TAPA_ABIERTA;
+			break;
+		case 'X':
+			eje_de_rotacion=EJE_X;
+			break;
+		case 'Y':
+			eje_de_rotacion=EJE_Y;
+			break;
+		case 'Z':
+			eje_de_rotacion=EJE_Z;
+			break;
+	}
+	
+	if( han_cambiado_opciones(prev_tapa_inf, prev_tapa_sup, _prev_eje)){
+		cilindro.regenerar_con_nuevas_opciones( tapa_inf, tapa_sup, eje_de_rotacion);
+		cono.regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje_de_rotacion);
 	}
 	
 	glutPostRedisplay();
@@ -292,20 +345,6 @@ glViewport(0,0,Window_width,Window_high);
 int main(int argc, char *argv[] )
 {
 
-// perfil 
-
-vector<_vertex3f> perfil2;
-_vertex3f aux;
-
-aux.x=1.0; aux.y=-1.0; aux.z=0.0;
-perfil2.push_back(aux);
-aux.x=1.0; aux.y=1.0; aux.z=0.0;
-perfil2.push_back(aux);
-
-
-rotacion.parametros(perfil2,6);
-
-
 
 // se llama a la inicialización de glut
 glutInit(&argc, argv);
@@ -345,8 +384,8 @@ initialize();
 
 // creación del objeto ply
 ply.parametros(argv[1]);
-
-//ply1 = new _objeto_ply(argv[1]);
+//esfera.lee_perfil(argv[2]);
+esfera.genera_perfil(pasos);
 
 // inicio del bucle de eventos
 glutMainLoop();

@@ -12,6 +12,8 @@
 
 const float AXIS_SIZE=5000;
 typedef enum{ PUNTOS, ARISTAS, AJEDREZ, SOLIDO, MULTICOLOR } _modo;
+typedef enum{ EJE_X, EJE_Y, EJE_Z } _eje_de_rotacion;
+typedef enum{ TAPA_ABIERTA, TAPA_CERRADA } _tapas;
 
 //*************************************************************************
 // clase punto
@@ -93,6 +95,7 @@ public:
    _objeto_ply();
 
 int   parametros(char *archivo);
+static vector<_vertex3f> parametros_para_perfiles(char *archivo);
 };
 
 //************************************************************************
@@ -103,9 +106,52 @@ class _rotacion: public _triangulos3D
 {
 public:
        _rotacion();
-void  parametros(vector<_vertex3f> perfil1, int num1);
+void regenerar_con_nuevas_opciones(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje_de_rotacion);
+void parametros(vector<_vertex3f> perfil, int num);
+void giro_en_eje_y(vector<_vertex3f> &perfil, int num, int num_aux);
+void giro_en_eje_x(vector<_vertex3f> &perfil, int num, int num_aux);
+void giro_en_eje_z(vector<_vertex3f> &perfil, int num, int num_aux);
+void genera_tapas(int c, int num, int num_aux);
 
-vector<_vertex3f> perfil; 
+vector<_vertex3f> perfil_eje_y; 
+vector<_vertex3f> perfil_eje_x; 
+vector<_vertex3f> perfil_eje_z; 
+_tapas tapa_inf, tapa_sup;
+_eje_de_rotacion eje_de_rotacion;
+
 int num;
 };
 
+//************************************************************************
+// objeto por revolución : Cilindro
+//************************************************************************
+
+class _cilindro: public _rotacion
+{
+	public:
+		_cilindro(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje);
+};
+
+//************************************************************************
+// objeto por revolución : Cono
+//************************************************************************
+
+class _cono: public _rotacion
+{
+	public:
+		_cono(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje);
+};
+
+//************************************************************************
+// objeto por revolución : Cono
+//************************************************************************
+
+class _esfera: public _rotacion
+{
+	public:
+		_esfera(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje);
+	void lee_perfil(char *archivo);
+	void genera_perfil(int num);
+
+	vector<_vertex3f> perfil_semiesfera; 
+};

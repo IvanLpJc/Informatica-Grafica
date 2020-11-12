@@ -43,6 +43,8 @@ float r = 0, g = 0.5, b = 0.25;
 float r2 = 1, g2 = 0.75, b2 = 0.5;
 int grosor = 4 ;
 
+int pasos = 20 ;
+
 // _objeto_ply *ply1;
 
 
@@ -266,7 +268,7 @@ void normal_key(unsigned char Tecla1,int x,int y)
 	}
 	
 	if( han_cambiado_opciones(prev_tapa_inf, prev_tapa_sup, _prev_eje)){
-		cilindro.regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje_de_rotacion);
+		cilindro.regenerar_con_nuevas_opciones( tapa_inf, tapa_sup, eje_de_rotacion);
 		cono.regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje_de_rotacion);
 	}
 	
@@ -382,8 +384,8 @@ initialize();
 
 // creación del objeto ply
 ply.parametros(argv[1]);
-
-//ply1 = new _objeto_ply(argv[1]);
+//esfera.lee_perfil(argv[2]);
+esfera.genera_perfil(pasos);
 
 // inicio del bucle de eventos
 glutMainLoop();

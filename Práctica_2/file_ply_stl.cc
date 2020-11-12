@@ -207,5 +207,127 @@ void read( const char * nombreArchivo, vector<float> &vertices, vector<int> &fac
    return ;
 }
 
+void read_vertex( const char * nombreArchivo, vector<float> &vertices, vector<int> &faces )
+{
 
+   // modelos ply en:
+   // http://graphics.im.ntu.edu.tw/~robin/courses/cg03/model/
+   // http://people.sc.fsu.edu/~jburkardt/data/ply/ply.html
+   
+   using namespace std ;
+
+   const string 
+      sfn = string(nombreArchivo) + ".ply" ;
+   
+   string 
+      token ;
+   unsigned long long int 
+      nVertexs = 0, 
+      nFaces   = 0 ;
+   unsigned
+      state    = 0; // 0 antes de leer 'element vertex', 1 antes de leer 'element face', 2 después
+   bool 
+      inHeader = true ;
+   ifstream  
+      src( sfn.c_str() ) ; // open the file
+      
+   if ( ! src.is_open() ) 
+   {
+      string msg = string("no puedo abrir archivo '") + sfn + "' para lectura." ; 
+      error(msg.c_str());
+   }
+    
+   src >> token ;
+
+   if ( token != "ply" )
+      error("el archivo de entrada no comienza con 'ply'.");
+
+   src.getline(buffer,bufferCapacity);
+
+   cout << "leyendo malla de triángulos de '" + sfn + "' " << flush ;
+
+   // leer cabecera:
+   
+   while( inHeader )
+   {
+      if ( src.eof() ) 
+         error("fin de archivo no esperado en la cabecera");
+
+     src >> token ;
+
+     if ( token == "end_header" )
+     {  if ( state != 2 )
+           error("no se encuentran elementos 'element vertex' ni 'element face' en la cabecera");
+        src.getline(buffer,bufferCapacity);
+        inHeader = false ;
+     }
+     else if ( token == "comment" )
+     {  src.getline(buffer,bufferCapacity);
+        //cout << "  comment: " << buffer << endl ;
+     }
+     else if ( token == "format" )
+     {  src >> token ;
+        if ( token != "ascii" )
+        {  string msg = string("no se puede leer archivo en formato no 'ascii', el formato es: '")+token+"'" ;
+           error(msg.c_str());
+        }
+        src.getline(buffer,bufferCapacity);
+     }
+     else if ( token == "element" )
+     {  src >> token ;
+        if ( token == "vertex" )
+        {  if ( state != 0 )
+              error("'element vertex' va después de 'element face'");
+           src >> nVertexs ;
+           //cout << "  number of vertexes == " << nVertexs << endl ;
+           state = 1 ;
+        }
+        else if ( token == "face" )
+        {  if ( state != 1 )
+              error("warning: 'element vertex' va después de 'element face'");
+           src >> nFaces ;
+           //cout << "  number of faces == " << nFaces << endl ;
+           state = 2 ;
+        }
+        else
+        {  cout << "  elemento '" + token + "' ignorado." << endl ;
+        }
+        src.getline(buffer,bufferCapacity);
+     }
+     else if ( token == "property" )
+     {  src.getline(buffer,bufferCapacity); // ignore properties, so far ...
+     }
+   } // end of while( inHeader )
+
+   if ( nVertexs == 0 )
+      error("hay cero vértices en el archivo");
+      
+   cout << "  (" << nVertexs << " vértices, "  << endl << flush ;
+   
+      
+   // leer vértices:
+      
+   vertices.resize( nVertexs*3 );
+
+   //cout << "  reading " << nVertexs << " vertexes ...." << endl << flush ;
+     
+   for( unsigned long long iv = 0 ; iv < nVertexs ; iv++ )
+   {
+      if ( src.eof() ) 
+         error("fin de archivo no esperado en la lista de vértices");
+
+      float x,y,z ;
+
+      src >> x >> y >> z ;
+      //cout << "vertex #" << iv << " readed: (" << x << "," << y << "," << z << ")" << endl ;
+      
+      src.getline(buffer,bufferCapacity); // ignore more properties, so far ...
+      
+      // add new vertex
+      unsigned long long base = iv*3 ;
+      vertices[base+0] = x ;
+      vertices[base+1] = y ;
+      vertices[base+2] = z ; 
+   }
+}
 } // fin namespace _file_ply

@@ -295,6 +295,33 @@ _genera_colores();
 
 return(0);
 }
+
+ vector<_vertex3f> _objeto_ply::parametros_para_perfiles(char *archivo){
+	int n_ver,n_car;
+
+	vector<float> ver_ply ;
+	vector<int>   car_ply ;
+	vector<_vertex3f> perfil;
+	
+	_file_ply::read_vertex(archivo, ver_ply, car_ply );
+
+	n_ver=ver_ply.size()/3;
+	n_car=car_ply.size()/3;
+
+	printf("Number of vertices=%d\nNumber of faces=%d\n", n_ver, n_car);
+	perfil.resize(n_ver);
+
+	int j = 0;
+	for (unsigned int i = 0; i < ver_ply.size();)
+	{
+		perfil[j].x = ver_ply[i++];
+		perfil[j].y = ver_ply[i++];
+		perfil[j].z = ver_ply[i++];
+		j++;
+	}
+
+	return perfil;
+}
 //************************************************************************
 // objeto por revolucion
 //************************************************************************
@@ -539,19 +566,56 @@ _cono::_cono(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
 }
 
 _esfera::_esfera(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
-	//genera_perfil() ;
-	//regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje);
+	tapa_sup = tapa_sup;
+	tapa_inf = tapa_inf;
+	eje_de_rotacion = eje;
 }
 
+void _esfera::lee_perfil(char *archivo){
+	perfil_eje_y = _objeto_ply::parametros_para_perfiles(archivo);
+	int tamano = perfil_eje_y.size();
+	printf("El tamaño de perfil_eje_y es de: %d\n", tamano);
+	regenerar_con_nuevas_opciones(tapa_sup, tapa_inf, eje_de_rotacion);
+
+}
+
+void _esfera::genera_perfil(int pasos){
+	num = pasos ;
+	_vertex3f vertice_aux;
+	vertice_aux.x = 0.0;
+	vertice_aux.y = 1.0 ;
+	vertice_aux.z = 0.0;
+	pasos = pasos*2;
+
+	perfil_semiesfera.push_back(vertice_aux);
+
+	int pasos_aux=perfil_semiesfera.size();
+	perfil_eje_y.resize(pasos_aux*pasos+2);
+
+	for (int j=0;j<pasos;j++)
+	{	
+		for (int i=0;i<pasos_aux;i++)
+		{
+			vertice_aux.x=-perfil_semiesfera[i].x*cos(2.0*M_PI*j/(1.0*pasos)) + perfil_semiesfera[i].y*sin(2.0*M_PI*j/(1.0*pasos));
+			vertice_aux.y=perfil_semiesfera[i].x*sin(2.0*M_PI*j/(1.0*pasos)) + perfil_semiesfera[i].y*cos(2.0*M_PI*j/(1.0*pasos));
+			vertice_aux.z=perfil_semiesfera[i].z;
+			perfil_eje_y[i+j*pasos_aux]=vertice_aux;
+
+
+				printf("Iteracion i = %d | j = %d\n", i ,j);
+				printf("cos(2.0*M_PI*j/(1.0*pasos) = %f\n", cos(2.0*M_PI*j/(1.0*pasos))) ;
+				printf("sin(2.0*M_PI*j/(1.0*pasos) = %f\n", sin(2.0*M_PI*j/(1.0*pasos))) ;
+		}
+	}
+
+	printf("Tamaño de vértices = %d || %f\n", int(perfil_eje_y.size()), float(perfil_eje_y.size()/2));
+	int mitad = perfil_eje_y.size()/2;
+	for(int i = 0 ; i < mitad; i++){
+		perfil_eje_y.pop_back();
+	}
+	printf("Tamaño de vértices tras quitar la mitad = %d\n", int(vertices.size()));
+	regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, EJE_Y);
+}
 //************************************************************************
 // objeto por revolucion: Esfera
 //************************************************************************
-
-void _esfera::genera_perfil(){
-	_vertex3f aux ;
-	aux.x=0.0; aux.y = 1.0; aux.z = 0.0;
-	perfil_semiesfera.push_back(aux);
-
-	giro_en_eje_x(perfil_semiesfera, 5, 1);
-	perfil_eje_y = perfil_semiesfera ;
-}

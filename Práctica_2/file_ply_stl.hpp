@@ -36,6 +36,7 @@ namespace _file_ply
 // * no lee colores, coordenadas de textura, ni normales.
 
 void read( const char * nombreArchivo, vector<float> &Vertices,vector<int> &Faces );
+void read_vertex( const char * nombreArchivo, vector<float> &vertices, vector<int> &faces );
    
 } ;
 

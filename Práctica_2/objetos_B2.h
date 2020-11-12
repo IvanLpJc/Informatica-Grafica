@@ -95,6 +95,7 @@ public:
    _objeto_ply();
 
 int   parametros(char *archivo);
+static vector<_vertex3f> parametros_para_perfiles(char *archivo);
 };
 
 //************************************************************************
@@ -149,7 +150,8 @@ class _esfera: public _rotacion
 {
 	public:
 		_esfera(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje);
-		void genera_perfil();
+	void lee_perfil(char *archivo);
+	void genera_perfil(int num);
 
 	vector<_vertex3f> perfil_semiesfera; 
 };

@@ -296,7 +296,7 @@ _genera_colores();
 return(0);
 }
 
- vector<_vertex3f> _objeto_ply::parametros_para_perfiles(char *archivo){
+vector<_vertex3f> _objeto_ply::parametros_para_perfiles(char *archivo){
 	int n_ver,n_car;
 
 	vector<float> ver_ply ;
@@ -331,10 +331,8 @@ _rotacion::_rotacion()
 	
 }
 
-void _rotacion::regenerar_con_nuevas_opciones(_tapas n_tapa_inf, _tapas n_tapa_sup, _eje_de_rotacion n_eje_de_rotacion){
-	
-	tapa_inf = n_tapa_inf;
-	tapa_sup = n_tapa_sup;
+void _rotacion::regenerar_con_nuevas_opciones(_eje_de_rotacion n_eje_de_rotacion){
+
 	eje_de_rotacion = n_eje_de_rotacion;
 
 
@@ -417,7 +415,7 @@ void _rotacion::genera_tapas(int c,int num, int num_aux){
 	}
 
 	// tapa inferior
-	if ((tapa_inferior>0.0) && tapa_inf == TAPA_CERRADA)
+	if (tapa_inferior>0.0)
 	{
 		if(eje_de_rotacion == EJE_Y){
 			vertices[num_aux*num].x = 0.0 ;
@@ -448,7 +446,7 @@ void _rotacion::genera_tapas(int c,int num, int num_aux){
 	}
 	
 	// tapa superior
-	if ((tapa_superior>0.0) && (tapa_sup == TAPA_CERRADA))
+	if (tapa_superior>0.0)
 	{
 		if(eje_de_rotacion == EJE_Y){
 			vertices[num_aux*num+1].x = 0.0 ;
@@ -520,7 +518,7 @@ for(int j=0; j<num; j++){
 // objeto por revolucion: Cilindro
 //************************************************************************
 
-_cilindro::_cilindro(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
+_cilindro::_cilindro(_eje_de_rotacion eje){
 	_vertex3f aux;
 
 	aux.x=1.0; aux.y=-1.0; aux.z=0.0;
@@ -538,14 +536,14 @@ _cilindro::_cilindro(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
 	aux.x=0.0; aux.y=1.0; aux.z=-1.0;
 	perfil_eje_z.push_back(aux);
 
-	regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje);
+	regenerar_con_nuevas_opciones(eje);
 }
 
 //************************************************************************
 // objeto por revolucion: Cono
 //************************************************************************
 
-_cono::_cono(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
+_cono::_cono(_eje_de_rotacion eje){
 	_vertex3f aux;
 	aux.x=0.0; aux.y=1.0; aux.z=0.0;
 	perfil_eje_y.push_back(aux);
@@ -562,20 +560,17 @@ _cono::_cono(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
 	aux.x=0.0; aux.y=1.0; aux.z=0.0;
 	perfil_eje_z.push_back(aux);
 
-	regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje);
+	regenerar_con_nuevas_opciones(eje);
 }
 
-_esfera::_esfera(_tapas tapa_inf, _tapas tapa_sup, _eje_de_rotacion eje){
-	tapa_sup = tapa_sup;
-	tapa_inf = tapa_inf;
+_esfera::_esfera(_eje_de_rotacion eje){
 	eje_de_rotacion = eje;
 }
 
 void _esfera::lee_perfil(char *archivo){
 	perfil_eje_y = _objeto_ply::parametros_para_perfiles(archivo);
 	int tamano = perfil_eje_y.size();
-	printf("El tamaño de perfil_eje_y es de: %d\n", tamano);
-	regenerar_con_nuevas_opciones(tapa_sup, tapa_inf, eje_de_rotacion);
+	regenerar_con_nuevas_opciones(eje_de_rotacion);
 
 }
 
@@ -600,21 +595,15 @@ void _esfera::genera_perfil(int pasos){
 			vertice_aux.y=perfil_semiesfera[i].x*sin(2.0*M_PI*j/(1.0*pasos)) + perfil_semiesfera[i].y*cos(2.0*M_PI*j/(1.0*pasos));
 			vertice_aux.z=perfil_semiesfera[i].z;
 			perfil_eje_y[i+j*pasos_aux]=vertice_aux;
-
-
-				printf("Iteracion i = %d | j = %d\n", i ,j);
-				printf("cos(2.0*M_PI*j/(1.0*pasos) = %f\n", cos(2.0*M_PI*j/(1.0*pasos))) ;
-				printf("sin(2.0*M_PI*j/(1.0*pasos) = %f\n", sin(2.0*M_PI*j/(1.0*pasos))) ;
 		}
 	}
 
-	printf("Tamaño de vértices = %d || %f\n", int(perfil_eje_y.size()), float(perfil_eje_y.size()/2));
 	int mitad = perfil_eje_y.size()/2;
 	for(int i = 0 ; i < mitad; i++){
 		perfil_eje_y.pop_back();
 	}
-	printf("Tamaño de vértices tras quitar la mitad = %d\n", int(vertices.size()));
-	regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, EJE_Y);
+
+	regenerar_con_nuevas_opciones(EJE_Y);
 }
 //************************************************************************
 // objeto por revolucion: Esfera

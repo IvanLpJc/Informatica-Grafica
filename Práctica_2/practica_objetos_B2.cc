@@ -15,7 +15,6 @@ using namespace std;
 typedef enum { CUBO, PIRAMIDE, ROMBO, OBJETO_PLY, CILINDRO, CONO, ESFERA } _tipo_objeto;
 _tipo_objeto tipo_objeto=CUBO;
 _eje_de_rotacion eje_de_rotacion=EJE_Y;
-_tapas tapa_sup=TAPA_CERRADA, tapa_inf=TAPA_CERRADA;
 _modo   modo=PUNTOS;
 
 // variables que definen la posicion de la camara en coordenadas polares
@@ -35,9 +34,9 @@ _piramide piramide(0.85,1.3);
 _cubo cubo(0.5);
 _rombo rombo(0.5, 0.5);
 _objeto_ply  ply; 
-_cilindro cilindro(tapa_sup, tapa_inf, EJE_Y);
-_cono cono(tapa_sup, tapa_inf, EJE_Y);
-_esfera esfera(tapa_sup, tapa_inf, EJE_Y);
+_cilindro cilindro(EJE_Y);
+_cono cono(EJE_Y);
+_esfera esfera(EJE_Y);
 
 float r = 0, g = 0.5, b = 0.25;
 float r2 = 1, g2 = 0.75, b2 = 0.5;
@@ -140,8 +139,10 @@ switch (tipo_objeto) {
 		break;
 	case CONO:
 		cono.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
+		break;
 	case ESFERA:
 		esfera.draw(modo,1.0,0.0,0.0,0.0,1.0,0.0,2);
+		break;
 	}
 
 }
@@ -182,14 +183,6 @@ glViewport(0,0,Ancho1,Alto1);
 glutPostRedisplay();
 }
 
-static bool han_cambiado_opciones(_tapas prev_tapas_inf, _tapas prev_tapas_sup, _eje_de_rotacion prev_eje){
-	if(prev_tapas_inf != tapa_inf || prev_tapas_sup != tapa_sup || eje_de_rotacion != prev_eje){
-		return true;
-	}
-
-	return false;
-}
-
 //**********-o*****************************************************************
 // Funcion llamada cuando se aprieta una tecla normal
 //
@@ -201,9 +194,7 @@ static bool han_cambiado_opciones(_tapas prev_tapas_inf, _tapas prev_tapas_sup, 
 
 void normal_key(unsigned char Tecla1,int x,int y)
 {
-	_tapas prev_tapa_inf = tapa_inf ;
-	_tapas prev_tapa_sup = tapa_sup ;
-	_eje_de_rotacion _prev_eje = eje_de_rotacion;
+	_eje_de_rotacion prev_eje = eje_de_rotacion;
 
 	switch (toupper(Tecla1)) {
 		case 'Q':
@@ -244,18 +235,6 @@ void normal_key(unsigned char Tecla1,int x,int y)
 		case '7':
 			tipo_objeto=ESFERA;
 			break;
-		case 'T':
-			tapa_sup=TAPA_ABIERTA;
-			break;
-		case 'R':
-			tapa_sup=TAPA_CERRADA;
-			break;
-		case 'E':
-			tapa_inf=TAPA_CERRADA;
-			break;
-		case 'W':
-			tapa_inf=TAPA_ABIERTA;
-			break;
 		case 'X':
 			eje_de_rotacion=EJE_X;
 			break;
@@ -267,9 +246,9 @@ void normal_key(unsigned char Tecla1,int x,int y)
 			break;
 	}
 	
-	if( han_cambiado_opciones(prev_tapa_inf, prev_tapa_sup, _prev_eje)){
-		cilindro.regenerar_con_nuevas_opciones( tapa_inf, tapa_sup, eje_de_rotacion);
-		cono.regenerar_con_nuevas_opciones(tapa_inf, tapa_sup, eje_de_rotacion);
+	if(prev_eje != eje_de_rotacion){
+		cilindro.regenerar_con_nuevas_opciones(eje_de_rotacion);
+		cono.regenerar_con_nuevas_opciones(eje_de_rotacion);
 	}
 	
 	glutPostRedisplay();
